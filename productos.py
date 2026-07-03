@@ -3,6 +3,23 @@ import sqlite3
 from database import obtener_conexion
 
 
+def _mostrar_lista_productos(productos, titulo="Lista de productos"):
+    """Función auxiliar interna para imprimir productos con formato uniforme."""
+    if not productos:
+        return
+
+    print(f"\n============= {titulo} =============")
+    for prod in productos:
+        print(
+            f"ID: {prod[0]} | "
+            f"Nombre: {prod[1]} | "
+            f"Descripción: {prod[2]} | "
+            f"Cantidad: {prod[3]} | "
+            f"Precio: ${prod[4]:.2f} | "
+            f"Categoría: {prod[5]}"
+        )
+
+
 def agregar_producto():
     """Inserta un nuevo producto en la tabla productos."""
     conexion = obtener_conexion()
@@ -74,9 +91,7 @@ def consultar_productos():
             print("Aún no hay productos registrados.")
             return None
 
-        print("\n============= Lista de productos =============")
-        for producto in productos:
-            print(f"ID: {producto[0]} | Nombre: {producto[1]} | Descripción: {producto[2]} | Cantidad: {producto[3]} | Precio: ${producto[4]:.2f} | Categoría: {producto[5]}")
+        _mostrar_lista_productos(productos)
 
         return productos
 
@@ -136,8 +151,7 @@ def actualizar_producto():
         cursor.execute(sql,(id_producto,))
         producto_actualizado = cursor.fetchone()
 
-        print("\n========= Producto Actualizado =========")
-        print(f"ID: {producto_actualizado[0]} | Nombre: {producto_actualizado[1]} | Precio: ${producto_actualizado[4]:.2f} | Cantidad: {producto_actualizado[3]}")
+        _mostrar_lista_productos([producto_actualizado], "Producto Actualizado")
 
     except sqlite3.Error as e:
         print(f"Ocurrió un error al actualizar el producto: {e}")
@@ -219,9 +233,7 @@ def buscar_producto():
         if len(productos) == 0:
             print("No se encontraron productos con ese criterio de búsqueda.")
         else:
-            print("\n============= Lista de productos =============")
-            for producto in productos:
-                print(f"ID: {producto[0]} | Nombre: {producto[1]} | Descripción: {producto[2]} | Cantidad: {producto[3]} | Precio: ${producto[4]:.2f} | Categoría: {producto[5]}")
+            _mostrar_lista_productos(productos, "Resultados de la búsqueda")
 
     except sqlite3.Error as e:
         print(f"Ocurrió un error al buscar el producto: {e}")
@@ -258,11 +270,7 @@ def reporte_productos():
         if len(productos) == 0:
             print("No se encontraron productos con esa cantidad o menor.")
         else:
-            print("\n============= Lista de productos =============")
-            for producto in productos:
-                print(
-                    f"ID: {producto[0]} | Nombre: {producto[1]} | Descripción: {producto[2]} | Cantidad: {producto[3]} | Precio: ${producto[4]:.2f} | Categoría: {producto[5]}"
-                )
+            _mostrar_lista_productos(productos, f"Reporte: Stock de productos con cantidad menor o igual a {cantidad}")
 
     except sqlite3.Error as e:
         print(f"Ocurrió un error al mostrar los productos: {e}")
