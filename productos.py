@@ -3,6 +3,9 @@ import sqlite3
 from database import obtener_conexion
 
 
+LIMITE_SQLITE_INT = 9_223_372_036_854_775_807
+
+
 def _mostrar_lista_productos(productos, titulo="Lista de productos"):
     """Función auxiliar interna para imprimir productos con formato uniforme."""
     if not productos:
@@ -28,8 +31,8 @@ def agregar_producto():
         cursor = conexion.cursor()
 
         nombre = input("Ingrese el nombre del producto: ").strip()
-        while len(nombre) < 3:
-            print("El nombre no puede estar vacío y debe tener al menos 3 caracteres.")
+        while len(nombre) < 3 or len(nombre) > 100:
+            print("El nombre no puede estar vacío y debe tener entre 3 y 100 caracteres.")
             nombre = input("Ingrese el nombre del producto: ").strip()
 
         descripcion = input("Ingrese la descripción del producto: ").strip()
@@ -38,8 +41,10 @@ def agregar_producto():
             descripcion = input("Ingrese la descripción del producto: ").strip()
 
         cantidad = input("Ingrese la cantidad del producto: ").strip()
-        while not cantidad.isdigit():
-            print("La cantidad no puede estar vacía y debe ser un número entero.")
+        while not cantidad.isdigit() or int(cantidad) > LIMITE_SQLITE_INT:
+            print(
+                "La cantidad debe ser un número entero válido (no puede ser excesivamente grande)."
+            )
             cantidad = input("Ingrese la cantidad del producto: ").strip()
         cantidad = int(cantidad)
 
@@ -68,7 +73,7 @@ def agregar_producto():
         conexion.commit()
         print("\nProducto agregado exitosamente.")
 
-    except sqlite3.Error as e:
+    except (sqlite3.Error, OverflowError, ValueError) as e:
         print(f"Ocurrió un error al agregar el producto: {e}")
         conexion.rollback()
 
